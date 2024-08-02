@@ -19,6 +19,7 @@
 
     <ItemGroup>
       <Folder Include="Framework\" />
+      <Folder Include="Models\" />
     </ItemGroup>
 
 </Project>
