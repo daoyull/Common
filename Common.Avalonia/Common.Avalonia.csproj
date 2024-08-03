@@ -7,12 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="FreeSql" Version="3.2.833" />
-      <PackageReference Include="FreeSql.DbContext" Version="3.2.833" />
+      <PackageReference Include="Avalonia" Version="11.1.1" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Common.Lib\Common.Lib.csproj" />
+      <ProjectReference Include="..\src\Common.Mvvm\Common.Mvvm.csproj" />
     </ItemGroup>
 
 </Project>
