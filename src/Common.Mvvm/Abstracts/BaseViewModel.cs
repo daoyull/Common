@@ -4,9 +4,10 @@ namespace Common.Mvvm.Abstracts;
 
 public abstract class BaseViewModel : ObservableObject
 {
-    public virtual Task OnLoaded()
+    public abstract Task RefreshUi();
+    public virtual async Task OnLoaded()
     {
-        return Task.CompletedTask;
+        await RefreshUi();
     }
 
     public virtual Task OnUnloaded()

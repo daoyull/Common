@@ -9,14 +9,15 @@ public partial class MvvmPageQuery : ObservableObject, IPageQuery
     /// <summary>
     /// 页数
     /// </summary>
-    [property:JsonProperty("pageNum")] 
-    [ObservableProperty]
+    [property: JsonProperty("pageNum")] [ObservableProperty]
     private int _pageNum = 1;
 
     /// <summary>
     /// 页码
     /// </summary>
-    [property:JsonProperty("pageSize")]
-    [ObservableProperty]
+    [property: JsonProperty("pageSize")] [ObservableProperty]
     private int _pageSize = 10;
+
+    [property: JsonIgnore] [ObservableProperty]
+    private long _total;
 }
