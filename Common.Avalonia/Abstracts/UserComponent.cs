@@ -12,15 +12,12 @@ namespace Common.Avalonia.Abstracts;
 /// <summary>
 /// 用户组件
 /// </summary>
-public class UserComponent<T> : UserControl where T : BaseViewModel
+public abstract class UserComponent<T> : UserControl where T : BaseViewModel
 {
     /// <summary>
     /// Autofac 获取ViewModel
     /// </summary>
     public T? ViewModel { get; set; }
-
-    public Action<T?>? LoadedAction { get; set; }
-    public Action<T?>? UnLoadedAction { get; set; }
 
     protected ILogger<UserComponent<T>>? Logger;
 
@@ -57,7 +54,6 @@ public class UserComponent<T> : UserControl where T : BaseViewModel
     {
         base.OnLoaded(e);
         OnLoaded();
-        LoadedAction?.Invoke(ViewModel);
         ViewModel?.OnLoaded();
     }
 
@@ -69,8 +65,8 @@ public class UserComponent<T> : UserControl where T : BaseViewModel
     {
         base.OnUnloaded(e);
         OnUnloaded();
-        UnLoadedAction?.Invoke(ViewModel);
         ViewModel?.OnUnloaded();
+        ViewModel = null;
     }
 
     protected virtual void OnUnloaded()
