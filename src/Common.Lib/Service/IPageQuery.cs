@@ -4,4 +4,5 @@ public interface IPageQuery
 {
     public int PageNum { get; set; }
     public int PageSize { get; set; }
+    public long Total { get; set; }
 }
