@@ -66,7 +66,6 @@ public abstract class UserComponent<T> : UserControl where T : BaseViewModel
         base.OnUnloaded(e);
         OnUnloaded();
         ViewModel?.OnUnloaded();
-        ViewModel = null;
     }
 
     protected virtual void OnUnloaded()
