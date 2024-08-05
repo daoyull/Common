@@ -27,17 +27,14 @@ public abstract class UserComponent<T> : UserControl where T : BaseViewModel
         // 设计期加载异常
         try
         {
+           
             ViewModel = Ioc.IsBuilder ? Ioc.Container?.ResolveOptional<T>() : default;
             Logger = Ioc.Resolve<ILogger<UserComponent<T>>>();
+            DataContext = ViewModel;
         }
         catch (Exception e)
         {
             // ignored
-        }
-
-        if (ViewModel != null)
-        {
-            DataContext = ViewModel;
         }
 
         // var moduleAttribute = GetType().GetCustomAttribute<IocModuleAttribute>();

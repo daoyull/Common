@@ -6,15 +6,23 @@ namespace Common.Mvvm.Abstracts;
 
 public abstract class BaseViewModel : ObservableObject
 {
+    
+    public BaseViewModel()
+    {
+    }
+
     /// <summary>
     /// 获取数据刷新UI
     /// </summary>
-    public abstract Task Refresh();
+    public virtual Task Refresh()
+    {
+        return Task.CompletedTask;
+    }
 
-    public virtual async Task OnLoaded()
+    public virtual Task OnLoaded()
     {
         CallPaginationMethod(nameof(IPagination<MvvmPageQuery>.BeginListener));
-        await Refresh();
+        return Task.CompletedTask;
     }
 
     public virtual Task OnUnloaded()

@@ -84,7 +84,7 @@ public abstract partial class UserGridComponent<T, TS>
 
     private void OnSetDataSourceAction()
     {
-        RefreshMultiSelect();
+        RefreshMultiSelect(true);
     }
 
     private void MultiSelectButtonClick(object? sender, RoutedEventArgs e)
@@ -121,9 +121,8 @@ public abstract partial class UserGridComponent<T, TS>
     }
 
 
-    private void RefreshMultiSelect()
+    private void RefreshMultiSelect(bool isReload = false)
     {
-        return;
         if (ViewModel == null)
         {
             return;
@@ -151,17 +150,20 @@ public abstract partial class UserGridComponent<T, TS>
 
         #region 更新选中列显示
 
-        if (DataGrid != null)
+        if (DataGrid != null && !isReload)
         {
-            //     var visuals = DataGrid.GetVisualDescendants()
-            //         .Where(it => it.GetType() == typeof(ToggleRadioButton))
-            //         .Cast<ToggleRadioButton>()
-            //         .ToList();
-            //     foreach (var toggleRadioButton in visuals)
-            //     {
-            //         var index = ViewModel.DataSource.IndexOf((TS)toggleRadioButton.DataContext!);
-            //         // toggleRadioButton.IsChecked = selectedList[index];
-            //     }
+            var visuals = DataGrid.GetVisualDescendants()
+                .Where(it => it.GetType() == typeof(ToggleRadioButton))
+                .Cast<ToggleRadioButton>()
+                .ToList();
+            foreach (var toggleRadioButton in visuals)
+            {
+                var index = ViewModel.DataSource.IndexOf((TS)toggleRadioButton.DataContext!);
+                if (index != -1)
+                {
+                    toggleRadioButton.IsChecked = selectedList[index];
+                }
+            }
         }
 
         #endregion

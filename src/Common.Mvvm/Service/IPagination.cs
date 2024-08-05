@@ -27,5 +27,7 @@ public interface IPagination<T> where T : MvvmPageQuery
 
     public T Pagination { get; }
 
+    public bool IsPaginationShow { get; set; }
+
     public AsyncRelayCommand<T> PageChangeCommand { get; set; }
 }
