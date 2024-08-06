@@ -6,6 +6,7 @@ using Common.Lib.Attributes;
 using Common.Lib.Helpers;
 using Common.Lib.Service;
 using FreeSql;
+using FreeSql.Aop;
 using FreeSql.Internal.Model;
 using Mapster;
 using Microsoft.Extensions.Logging;
@@ -63,34 +64,20 @@ public static class FreeSqlExtensions
                         .Build();
 
                     db.AutoLoadId();
-                    // BaseEntity.Initialization((dbKey) =>
-                    // {
-                    //     lock (Locker)
-                    //     {
-                    //         if (string.IsNullOrEmpty(dbKey))
-                    //         {
-                    //             return FreeSqlDictionary.Count == 1
-                    //                 ? FreeSqlDictionary.Values.First()
-                    //                 : throw new Exception("Db Not Single");
-                    //         }
-                    //
-                    //         return FreeSqlDictionary[dbKey];
-                    //     }
-                    // }, null);
                     // 启用日志记录
-                    if (freeSqlOptions.EnableLogger)
+                    if (true)
                     {
                         db.Aop.CurdBefore += (_, e) =>
                         {
                             if (e.DbParms != null && e.DbParms.Length > 0)
                             {
-                                logger.Log(freeSqlOptions.LogLevel ?? LogLevel.Debug,
+                                logger.LogInformation(
                                     "{Flag}数据库执行:\nSql: {Sql}",
                                     key, e.Sql);
                             }
                             else
                             {
-                                logger.Log(freeSqlOptions.LogLevel ?? LogLevel.Debug,
+                                logger.LogInformation(
                                     "{Flag}数据库执行:\nSql: {Sql}\nDbParms: {@Parameter}",
                                     key, e.Sql, e.DbParms);
                             }
@@ -115,22 +102,31 @@ public static class FreeSqlExtensions
         freeSql.Aop.AuditValue += (s, e) =>
         {
             // 雪花Id
-            if (e.Column.CsType == typeof(long) &&
+            if (
+                e.AuditValueType == AuditValueType.Insert && e.Column.CsType == typeof(long) &&
                 e.Property.GetCustomAttribute<SnowflakeAttribute>(false) != null &&
                 e.Value?.ToString() == "0")
                 e.Value = IdHelper.SnowId;
 
             // Guid
-            if (e.Column.CsType == typeof(string) &&
+            if (e.AuditValueType == AuditValueType.Insert && e.Column.CsType == typeof(string) &&
                 e.Property.GetCustomAttribute<GuidAttribute>(false) != null &&
                 string.IsNullOrEmpty(e.Value?.ToString()))
                 e.Value = IdHelper.Guid;
 
             // SimpleGuid
-            if (e.Column.CsType == typeof(string) &&
+            if (e.AuditValueType == AuditValueType.Insert && e.Column.CsType == typeof(string) &&
                 e.Property.GetCustomAttribute<SimpleGuidAttribute>(false) != null &&
                 string.IsNullOrEmpty(e.Value?.ToString()))
                 e.Value = IdHelper.SimpleGuid;
+
+            if (e.Column.CsName == "CreateTime" && e.Column.CsType == typeof(DateTime) &&
+                e.AuditValueType == AuditValueType.Insert
+                && (e.Value == null || (DateTime)e.Value == DateTime.MinValue))
+                e.Value = TimeHelper.NowCst;
+            if (e.Column.CsName == "UpdateTime" && e.Column.CsType == typeof(DateTime)
+                                                && (e.Value == null || (DateTime)e.Value == DateTime.MinValue))
+                e.Value = TimeHelper.NowCst;
         };
         return freeSql;
     }

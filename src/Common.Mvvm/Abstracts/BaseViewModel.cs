@@ -6,10 +6,10 @@ namespace Common.Mvvm.Abstracts;
 
 public abstract class BaseViewModel : ObservableObject
 {
-    
     public BaseViewModel()
     {
     }
+
 
     /// <summary>
     /// 获取数据刷新UI
@@ -18,6 +18,7 @@ public abstract class BaseViewModel : ObservableObject
     {
         return Task.CompletedTask;
     }
+
 
     public virtual Task OnLoaded()
     {
