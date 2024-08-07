@@ -3,16 +3,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Common.Mvvm.Abstracts;
 
-public abstract class BaseViewModel : ObservableObject, ILifeCycle, IRefresh
+public abstract class BaseViewModel : ObservableObject, ILifeCycle
 {
-    /// <summary>
-    /// 获取数据刷新UI
-    /// </summary>
-    public virtual Task Refresh()
-    {
-        return Task.CompletedTask;
-    }
-
     #region 生命周期
 
     public HashSet<ILifePlugin> Plugins { get; } = new();

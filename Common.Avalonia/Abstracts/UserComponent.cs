@@ -6,14 +6,21 @@ using Common.Mvvm.Abstracts;
 
 namespace Common.Avalonia.Abstracts;
 
-public abstract class UserComponent : UserControl, ILifeCycle
+public abstract class UserComponent : UserControl, ILifeCycle, IPluginBuilder
 {
+    public override void EndInit()
+    {
+        base.EndInit();
+        OnLoaded();
+    }
+
     public HashSet<ILifePlugin> Plugins { get; } = new();
 
-    protected override async void OnInitialized()
+    public IPluginBuilder PluginBuilder => this;
+
+
+    protected virtual void LoadPlugin(IPluginBuilder builder)
     {
-        base.OnInitialized();
-        await OnCreated();
     }
 
     protected override async void OnLoaded(RoutedEventArgs e)
@@ -58,6 +65,23 @@ public abstract class UserComponent : UserControl, ILifeCycle
         Plugins.Clear();
         return Task.CompletedTask;
     }
+
+    public IPluginBuilder AddPlugin<T>() where T : ILifePlugin
+    {
+        return AddPlugin((ILifePlugin)Activator.CreateInstance(typeof(T))!);
+    }
+
+    public IPluginBuilder AddPlugin(ILifePlugin plugin)
+    {
+        Plugins.Add(plugin);
+        return this;
+    }
+}
+
+public interface IPluginBuilder
+{
+    IPluginBuilder AddPlugin<T>() where T : ILifePlugin;
+    IPluginBuilder AddPlugin(ILifePlugin plugin);
 }
 
 /// <summary>
@@ -72,6 +96,6 @@ public abstract class UserComponent<T> : UserComponent where T : BaseViewModel
 
     public UserComponent()
     {
-        Plugins.Add(new ViewModelPlugin<T>());
+        PluginBuilder.AddPlugin<ViewModelPlugin<T>>();
     }
 }

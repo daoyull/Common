@@ -13,19 +13,19 @@ public class PaginationPlugin : ILifePlugin
 
     public Task OnLoaded(ILifeCycle lifeCycle)
     {
-        CallPaginationMethod(lifeCycle.GetType(), nameof(IPagination<MvvmPageQuery>.BeginListener));
+        CallPaginationMethod(lifeCycle, nameof(IPagination<MvvmPageQuery>.BeginListener));
         return Task.CompletedTask;
     }
 
     public Task OnUnloaded(ILifeCycle lifeCycle)
     {
-        CallPaginationMethod(lifeCycle.GetType(), nameof(IPagination<MvvmPageQuery>.EndListener));
+        CallPaginationMethod(lifeCycle, nameof(IPagination<MvvmPageQuery>.EndListener));
         return Task.CompletedTask;
     }
 
-    private void CallPaginationMethod(Type type, string methodName)
+    private void CallPaginationMethod(ILifeCycle lifeCycle, string methodName)
     {
-        var paginationInterface = type
+        var paginationInterface = lifeCycle.GetType()
             .GetInterfaces()
             .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IPagination<>));
 
@@ -34,7 +34,7 @@ public class PaginationPlugin : ILifePlugin
             var beginListenerMethod = paginationInterface.GetMethod(methodName);
             if (beginListenerMethod != null)
             {
-                beginListenerMethod.Invoke(this, null);
+                beginListenerMethod.Invoke(lifeCycle, null);
             }
         }
     }
