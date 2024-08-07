@@ -18,45 +18,45 @@ public class UserGridPlugin<T, TS> : ILifePlugin
 
     public Task OnCreated(ILifeCycle lifeCycle)
     {
+        return Task.CompletedTask;
+    }
+
+
+    public Task OnLoaded(ILifeCycle lifeCycle)
+    {
         if (lifeCycle is not UserGridComponent<T, TS> userGridComponent)
         {
             throw new BusinessException("lifeCycle is not UserGridComponent");
         }
 
-        ViewModel = userGridComponent.ViewModel;
-        SelectedMode = userGridComponent.SelectedMode;
-        DataGrid = userGridComponent.DataGrid;
-        return Task.CompletedTask;
-    }
-
-    private DataGrid? DataGrid { get; set; }
-    private SelectedMode SelectedMode { get; set; }
-    private T? ViewModel { get; set; }
-
-    public Task OnLoaded(ILifeCycle lifeCycle)
-    {
-        RegisterMultiSelect();
+        RegisterMultiSelect(userGridComponent);
         return Task.CompletedTask;
     }
 
     public Task OnUnloaded(ILifeCycle lifeCycle)
     {
-        UnRegisterMultiSelect();
+        if (lifeCycle is not UserGridComponent<T, TS> userGridComponent)
+        {
+            throw new BusinessException("lifeCycle is not UserGridComponent");
+        }
+
+        UnRegisterMultiSelect(userGridComponent);
         return Task.CompletedTask;
     }
 
     /// <summary>
     /// 增加多选列
     /// </summary>
-    private void RegisterMultiSelect()
+    /// <param name="component"></param>
+    private void RegisterMultiSelect(UserGridComponent<T, TS> component)
     {
-        if (ViewModel == null || SelectedMode == SelectedMode.None)
+        if (component.ViewModel == null || component.SelectedMode == SelectedMode.None)
         {
             return;
         }
 
         // 增加控件
-        var dataGrid = DataGrid;
+        var dataGrid = component.DataGrid;
         if (dataGrid == null)
         {
             return;
@@ -67,8 +67,23 @@ public class UserGridPlugin<T, TS> : ILifePlugin
         selectColum.HeaderTemplate = new FuncDataTemplate<TS>((_, _) =>
         {
             // 只有允许多选才可见
-            _multiSelectButton.IsVisible = SelectedMode == SelectedMode.Multi;
-            _multiSelectButton.Click += MultiSelectButtonClick;
+            _multiSelectButton.IsVisible = component.SelectedMode == SelectedMode.Multi;
+            _multiSelectButton.Click += (sender, e) =>
+            {
+                var status = _multiSelectButton.SelectStatus;
+
+                switch (status)
+                {
+                    case SelectStatus.NotSelect:
+                        component.ViewModel.DataSource.ResetSelected(false);
+                        break;
+                    case SelectStatus.AllSelect:
+                        component.ViewModel.DataSource.ResetSelected(true);
+                        break;
+                }
+
+                RefreshMultiSelect(component);
+            };
             return _multiSelectButton;
         });
         selectColum.CanUserReorder = false;
@@ -80,7 +95,7 @@ public class UserGridPlugin<T, TS> : ILifePlugin
         var dataTemplate = new FuncDataTemplate<TS>((value, _) =>
         {
             var toggleRadioButton = new ToggleRadioButton();
-            if (SelectedMode == SelectedMode.Single)
+            if (component.SelectedMode == SelectedMode.Single)
             {
                 toggleRadioButton.GroupName = "DataGridToggleRadioButton";
             }
@@ -90,77 +105,53 @@ public class UserGridPlugin<T, TS> : ILifePlugin
             toggleRadioButton.Classes.Add("DataGridRowSelect");
             toggleRadioButton.Click += (sender, _) =>
             {
-                if (SelectedMode == SelectedMode.Single)
+                if (component.SelectedMode == SelectedMode.Single)
                 {
-                    ViewModel.DataSource.ResetSelected(false);
+                    component.ViewModel.DataSource.ResetSelected(false);
                 }
 
                 var box = sender as ToggleRadioButton;
-                var index = ViewModel.DataSource.IndexOf(value);
+                var index = component.ViewModel.DataSource.IndexOf(value);
                 if (index != -1)
                 {
-                    ViewModel.DataSource.SetSelected(index, box!.IsChecked == true);
+                    component.ViewModel.DataSource.SetSelected(index, box!.IsChecked == true);
                 }
 
-                RefreshMultiSelect();
+                RefreshMultiSelect(component);
             };
             return toggleRadioButton;
         });
 
         selectColum.CellTemplate = dataTemplate;
         dataGrid.Columns.Insert(0, selectColum);
-        ViewModel.OnSetDataSourceAction += OnSetDataSourceAction;
+        component.ViewModel.OnSetDataSourceAction += () => OnSetDataSourceAction(component);
     }
 
-    private void OnSetDataSourceAction()
+    private void OnSetDataSourceAction(UserGridComponent<T, TS> component)
     {
-        RefreshMultiSelect(true);
-        ViewModel = null;
-        DataGrid = null;
+        RefreshMultiSelect(component, true);
     }
 
-    private void MultiSelectButtonClick(object? sender, RoutedEventArgs e)
+
+    private void UnRegisterMultiSelect(UserGridComponent<T, TS> component)
     {
-        if (sender is not MultiSelectButton button || ViewModel == null)
+        component.DataGrid?.Columns.Clear();
+        if (component.ViewModel != null)
+        {
+            component.ViewModel.OnSetDataSourceAction -= () => OnSetDataSourceAction(component);
+            component.ViewModel.DataSource.Clear();
+        }
+    }
+
+
+    private void RefreshMultiSelect(UserGridComponent<T, TS> component, bool isReload = false)
+    {
+        if (component.ViewModel == null)
         {
             return;
         }
 
-        var status = button.SelectStatus;
-
-        switch (status)
-        {
-            case SelectStatus.NotSelect:
-                ViewModel.DataSource.ResetSelected(false);
-                break;
-            case SelectStatus.AllSelect:
-                ViewModel.DataSource.ResetSelected(true);
-                break;
-        }
-
-        RefreshMultiSelect();
-    }
-
-
-    private void UnRegisterMultiSelect()
-    {
-        DataGrid?.Columns.Clear();
-        if (ViewModel != null)
-        {
-            ViewModel.OnSetDataSourceAction -= OnSetDataSourceAction;
-            ViewModel.DataSource.Clear();
-        }
-    }
-
-
-    private void RefreshMultiSelect(bool isReload = false)
-    {
-        if (ViewModel == null)
-        {
-            return;
-        }
-
-        var selectedList = ViewModel.DataSource.SelectedList;
+        var selectedList = component.ViewModel.DataSource.SelectedList;
 
         #region 更新Header状态
 
@@ -169,7 +160,7 @@ public class UserGridPlugin<T, TS> : ILifePlugin
         {
             _multiSelectButton?.ChangeSelectStatus(SelectStatus.NotSelect);
         }
-        else if (selectCount < ViewModel.DataSource.Count)
+        else if (selectCount < component.ViewModel.DataSource.Count)
         {
             _multiSelectButton?.ChangeSelectStatus(SelectStatus.PartSelect);
         }
@@ -182,15 +173,15 @@ public class UserGridPlugin<T, TS> : ILifePlugin
 
         #region 更新选中列显示
 
-        if (DataGrid != null && !isReload)
+        if (component.DataGrid != null && !isReload)
         {
-            var visuals = DataGrid.GetVisualDescendants()
+            var visuals = component.DataGrid.GetVisualDescendants()
                 .Where(it => it.GetType() == typeof(ToggleRadioButton))
                 .Cast<ToggleRadioButton>()
                 .ToList();
             foreach (var toggleRadioButton in visuals)
             {
-                var index = ViewModel.DataSource.IndexOf((TS)toggleRadioButton.DataContext!);
+                var index = component.ViewModel.DataSource.IndexOf((TS)toggleRadioButton.DataContext!);
                 if (index != -1)
                 {
                     toggleRadioButton.IsChecked = selectedList[index];

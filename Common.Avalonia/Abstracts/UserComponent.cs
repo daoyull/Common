@@ -11,17 +11,11 @@ public abstract class UserComponent : UserControl, ILifeCycle, IPluginBuilder
     public override void EndInit()
     {
         base.EndInit();
-        OnLoaded();
+        OnCreated();
     }
 
     public HashSet<ILifePlugin> Plugins { get; } = new();
 
-    public IPluginBuilder PluginBuilder => this;
-
-
-    protected virtual void LoadPlugin(IPluginBuilder builder)
-    {
-    }
 
     protected override async void OnLoaded(RoutedEventArgs e)
     {
@@ -66,6 +60,10 @@ public abstract class UserComponent : UserControl, ILifeCycle, IPluginBuilder
         return Task.CompletedTask;
     }
 
+    #region Builder
+
+    public IPluginBuilder PluginBuilder => this;
+
     public IPluginBuilder AddPlugin<T>() where T : ILifePlugin
     {
         return AddPlugin((ILifePlugin)Activator.CreateInstance(typeof(T))!);
@@ -76,12 +74,8 @@ public abstract class UserComponent : UserControl, ILifeCycle, IPluginBuilder
         Plugins.Add(plugin);
         return this;
     }
-}
 
-public interface IPluginBuilder
-{
-    IPluginBuilder AddPlugin<T>() where T : ILifePlugin;
-    IPluginBuilder AddPlugin(ILifePlugin plugin);
+    #endregion
 }
 
 /// <summary>
