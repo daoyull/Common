@@ -1,16 +1,10 @@
-using Common.Mvvm.Models;
-using Common.Mvvm.Service;
+using Common.Lib.Service;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Common.Mvvm.Abstracts;
 
-public abstract class BaseViewModel : ObservableObject
+public abstract class BaseViewModel : ObservableObject, ILifeCycle, IRefresh
 {
-    public BaseViewModel()
-    {
-    }
-
-
     /// <summary>
     /// 获取数据刷新UI
     /// </summary>
@@ -19,33 +13,35 @@ public abstract class BaseViewModel : ObservableObject
         return Task.CompletedTask;
     }
 
+    #region 生命周期
 
-    public virtual Task OnLoaded()
+    public HashSet<ILifePlugin> Plugins { get; } = new();
+
+    public virtual async Task OnCreated()
     {
-        CallPaginationMethod(nameof(IPagination<MvvmPageQuery>.BeginListener));
-        return Task.CompletedTask;
-    }
-
-    public virtual Task OnUnloaded()
-    {
-        CallPaginationMethod(nameof(IPagination<MvvmPageQuery>.EndListener));
-        return Task.CompletedTask;
-    }
-
-    private void CallPaginationMethod(string methodName)
-    {
-        var type = GetType();
-        var paginationInterface = type
-            .GetInterfaces()
-            .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IPagination<>));
-
-        if (paginationInterface != null)
+        foreach (var lifePlugin in Plugins)
         {
-            var beginListenerMethod = paginationInterface.GetMethod(methodName);
-            if (beginListenerMethod != null)
-            {
-                beginListenerMethod.Invoke(this, null);
-            }
+            await lifePlugin.OnCreated(this);
         }
     }
+
+    public virtual async Task OnLoaded()
+    {
+        foreach (var lifePlugin in Plugins)
+        {
+            await lifePlugin.OnLoaded(this);
+        }
+    }
+
+    public virtual async Task OnUnloaded()
+    {
+        foreach (var lifePlugin in Plugins)
+        {
+            await lifePlugin.OnUnloaded(this);
+        }
+
+        Plugins.Clear();
+    }
+
+    #endregion
 }

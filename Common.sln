@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Redis", "src\Common.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Mvvm", "src\Common.Mvvm\Common.Mvvm.csproj", "{0700309C-1E2A-42BF-BC60-9C5D42663ACB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Avalonia", "Common.Avalonia\Common.Avalonia.csproj", "{2FF2B158-49D2-445B-A84A-4FFF1B7C02C4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{0700309C-1E2A-42BF-BC60-9C5D42663ACB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0700309C-1E2A-42BF-BC60-9C5D42663ACB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0700309C-1E2A-42BF-BC60-9C5D42663ACB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FF2B158-49D2-445B-A84A-4FFF1B7C02C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FF2B158-49D2-445B-A84A-4FFF1B7C02C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FF2B158-49D2-445B-A84A-4FFF1B7C02C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FF2B158-49D2-445B-A84A-4FFF1B7C02C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

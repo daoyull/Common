@@ -1,3 +1,4 @@
+using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Common.Mvvm.Abstracts;
 
@@ -11,17 +12,9 @@ namespace Common.Avalonia.Abstracts;
 public abstract partial class UserGridComponent<T, TS> : UserComponent<T>
     where T : BaseTableViewModel<TS> where TS : class
 {
-    protected override void OnLoaded(RoutedEventArgs e)
-    {
-        RegisterMultiSelect();
-        base.OnLoaded(e);
-    }
+    public abstract SelectedMode SelectedMode { get; }
 
-    protected override void OnUnloaded(RoutedEventArgs e)
-    {
-        UnRegisterMultiSelect();
-        base.OnLoaded(e);
-    }
+    public abstract DataGrid? DataGrid { get; }
 }
 
 public enum SelectedMode

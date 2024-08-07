@@ -3,17 +3,47 @@ using Avalonia.Controls.Templates;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.VisualTree;
+using Common.Avalonia.Abstracts;
 using Common.Avalonia.Controls;
+using Common.Lib.Exceptions;
+using Common.Lib.Service;
+using Common.Mvvm.Abstracts;
 
-namespace Common.Avalonia.Abstracts;
+namespace Common.Avalonia.Plugins;
 
-public abstract partial class UserGridComponent<T, TS>
+public class UserGridPlugin<T, TS> : ILifePlugin
+    where T : BaseTableViewModel<TS> where TS : class
 {
-    protected abstract SelectedMode SelectedMode { get; }
-
-    protected abstract DataGrid? DataGrid { get; }
-
     private MultiSelectButton? _multiSelectButton;
+
+    public Task OnCreated(ILifeCycle lifeCycle)
+    {
+        if (lifeCycle is not UserGridComponent<T, TS> userGridComponent)
+        {
+            throw new BusinessException("lifeCycle is not UserGridComponent");
+        }
+
+        ViewModel = userGridComponent.ViewModel;
+        SelectedMode = userGridComponent.SelectedMode;
+        DataGrid = userGridComponent.DataGrid;
+        return Task.CompletedTask;
+    }
+
+    private DataGrid? DataGrid { get; set; }
+    private SelectedMode SelectedMode { get; set; }
+    private T? ViewModel { get; set; }
+
+    public Task OnLoaded(ILifeCycle lifeCycle)
+    {
+        RegisterMultiSelect();
+        return Task.CompletedTask;
+    }
+
+    public Task OnUnloaded(ILifeCycle lifeCycle)
+    {
+        UnRegisterMultiSelect();
+        return Task.CompletedTask;
+    }
 
     /// <summary>
     /// 增加多选列
@@ -85,6 +115,8 @@ public abstract partial class UserGridComponent<T, TS>
     private void OnSetDataSourceAction()
     {
         RefreshMultiSelect(true);
+        ViewModel = null;
+        DataGrid = null;
     }
 
     private void MultiSelectButtonClick(object? sender, RoutedEventArgs e)

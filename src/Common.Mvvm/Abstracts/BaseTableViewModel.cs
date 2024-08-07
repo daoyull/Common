@@ -1,38 +1,14 @@
 using System.Collections.ObjectModel;
+using Common.Mvvm.Plugins;
 using CommunityToolkit.Mvvm.Input;
 
 namespace Common.Mvvm.Abstracts;
 
 public abstract class BaseTableViewModel<T> : BaseViewModel where T : class
 {
-    public override Task OnLoaded()
+    public BaseTableViewModel()
     {
-        DataSource.SelectedChanged += HandleSelectedChanged;
-        return base.OnLoaded();
-    }
-
-
-    private void HandleSelectedChanged()
-    {
-        var list = new List<T>();
-        for (var i = 0; i < DataSource.Count; i++)
-        {
-            if (DataSource.SelectedList[i])
-            {
-                list.Add(DataSource[i]);
-            }
-        }
-
-        SelectedRows = list;
-
-        IsSelectedSingle = SelectedRows.Count == 1;
-        SelectedRow = IsSelectedSingle ? SelectedRows[0] : null;
-    }
-
-    public override Task OnUnloaded()
-    {
-        DataSource.SelectedChanged -= HandleSelectedChanged;
-        return base.OnUnloaded();
+        Plugins.Add(new TablePlugin<T>());
     }
 
     #region Command
@@ -101,7 +77,7 @@ public abstract class BaseTableViewModel<T> : BaseViewModel where T : class
     public List<T> SelectedRows
     {
         get => _selectRows;
-        private set => SetProperty(ref _selectRows, value);
+        set => SetProperty(ref _selectRows, value);
     }
 
     #endregion
