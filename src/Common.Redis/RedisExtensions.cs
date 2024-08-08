@@ -6,11 +6,11 @@ using StackExchange.Redis;
 
 namespace Common.Redis;
 
-public delegate IDatabase RedisResolver(string key);
+public delegate IDatabase RedisResolver(string key, int database = 0);
 
 public static class RedisExtensions
 {
-    public delegate IDatabase RedisResolver(string key, int database = 0);
+    
 
     private static readonly Dictionary<string, IConnectionMultiplexer> RedisDictionary = new();
 
