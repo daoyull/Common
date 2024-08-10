@@ -1,6 +1,7 @@
 ﻿using AspectCore.DynamicProxy;
 using Common.Lib.Exceptions;
 using Common.Lib.Service;
+using LanguageExt.Common;
 
 namespace Common.Lib.Attributes;
 
@@ -23,7 +24,7 @@ public class DataVerifyAttribute : AbstractInterceptorAttribute
                 {
                     continue;
                 }
-
+                
                 throw new DataVerifyException(verifyResult.Item2);
             }
 

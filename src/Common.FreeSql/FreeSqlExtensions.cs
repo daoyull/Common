@@ -120,7 +120,10 @@ public static class FreeSqlExtensions
                 string.IsNullOrEmpty(e.Value?.ToString()))
                 e.Value = IdHelper.SimpleGuid;
 
-            if (e.Column.CsName == "CreateTime" && e.Column.CsType == typeof(DateTime) &&
+            if (e.Column.CsName == "CreateTime" && (e.Column.CsType == typeof(DateTime) ||
+                                                    (e.Column.CsType.IsGenericType &&
+                                                     e.Column.CsType.GenericTypeArguments
+                                                         .Contains(typeof(DateTime)))) &&
                 e.AuditValueType == AuditValueType.Insert
                 && (e.Value == null || (DateTime)e.Value == DateTime.MinValue))
                 e.Value = TimeHelper.NowCst;
