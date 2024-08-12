@@ -4,12 +4,12 @@ namespace Common.Lib.Ioc;
 
 public static partial class Ioc
 {
-    private static volatile IContainer? _container;
+    private static volatile ILifetimeScope? _container;
 
     /// <summary>
     /// Ioc容器
     /// </summary>
-    public static IContainer? Container => _container;
+    public static ILifetimeScope? Container => _container;
 
     /// <summary>
     /// 是否已Builder

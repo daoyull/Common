@@ -24,4 +24,9 @@ public static partial class Ioc
         _builderAction?.Invoke(containerBuilder);
         _container = containerBuilder.Build();
     }
+
+    public static void SetRootContainer(ILifetimeScope lifetimeScope)
+    {
+        _container = lifetimeScope;
+    }
 }
