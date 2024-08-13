@@ -4,12 +4,17 @@ namespace Common.Lib.Plugins;
 
 public class RefreshPlugin : ILifePlugin
 {
-    public Task OnCreated(ILifeCycle lifeCycle)
+    public Task OnCreate(ILifeCycle lifeCycle)
     {
         return Task.CompletedTask;
     }
 
-    public Task OnLoaded(ILifeCycle lifeCycle)
+    public Task OnInit(ILifeCycle lifeCycle)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task OnLoad(ILifeCycle lifeCycle)
     {
         if (lifeCycle is IRefresh refresh)
         {
@@ -19,7 +24,7 @@ public class RefreshPlugin : ILifePlugin
         return Task.CompletedTask;
     }
 
-    public Task OnUnloaded(ILifeCycle lifeCycle)
+    public Task OnUnload(ILifeCycle lifeCycle)
     {
         return Task.CompletedTask;
     }

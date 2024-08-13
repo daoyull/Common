@@ -6,18 +6,23 @@ namespace Common.Mvvm.Plugins;
 
 public class PaginationPlugin : ILifePlugin
 {
-    public Task OnCreated(ILifeCycle lifeCycle)
+    public Task OnCreate(ILifeCycle lifeCycle)
     {
         return Task.CompletedTask;
     }
 
-    public Task OnLoaded(ILifeCycle lifeCycle)
+    public Task OnInit(ILifeCycle lifeCycle)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task OnLoad(ILifeCycle lifeCycle)
     {
         CallPaginationMethod(lifeCycle, nameof(IPagination<MvvmPageQuery>.BeginListener));
         return Task.CompletedTask;
     }
 
-    public Task OnUnloaded(ILifeCycle lifeCycle)
+    public Task OnUnload(ILifeCycle lifeCycle)
     {
         CallPaginationMethod(lifeCycle, nameof(IPagination<MvvmPageQuery>.EndListener));
         return Task.CompletedTask;

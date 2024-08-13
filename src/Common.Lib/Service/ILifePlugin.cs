@@ -2,9 +2,11 @@
 
 public interface ILifePlugin
 {
-    Task OnCreated(ILifeCycle lifeCycle);
+    Task OnCreate(ILifeCycle lifeCycle);
+    
+    Task OnInit(ILifeCycle lifeCycle);
 
-    Task OnLoaded(ILifeCycle lifeCycle);
+    Task OnLoad(ILifeCycle lifeCycle);
 
-    Task OnUnloaded(ILifeCycle lifeCycle);
+    Task OnUnload(ILifeCycle lifeCycle);
 }

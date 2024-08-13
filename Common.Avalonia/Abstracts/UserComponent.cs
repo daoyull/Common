@@ -8,57 +8,32 @@ namespace Common.Avalonia.Abstracts;
 
 public abstract class UserComponent : UserControl, ILifeCycle, IPluginBuilder
 {
-    public override void EndInit()
-    {
-        base.EndInit();
-        OnCreated();
-    }
-
     public HashSet<ILifePlugin> Plugins { get; } = new();
 
+    public override async void EndInit()
+    {
+        base.EndInit();
+        await ((ILifeCycle)this).OnCreate();
+    }
+
+    protected override async void OnInitialized()
+    {
+        base.OnInitialized();
+        await ((ILifeCycle)this).OnInit();
+    }
 
     protected override async void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
-        await OnLoaded();
+        await ((ILifeCycle)this).OnLoad();
     }
 
     protected override async void OnUnloaded(RoutedEventArgs e)
     {
         base.OnUnloaded(e);
-        await OnUnloaded();
+        await ((ILifeCycle)this).OnUnload();
     }
 
-    public Task OnCreated()
-    {
-        foreach (var lifePlugin in Plugins)
-        {
-            lifePlugin.OnCreated(this);
-        }
-
-        return Task.CompletedTask;
-    }
-
-    public Task OnLoaded()
-    {
-        foreach (var lifePlugin in Plugins)
-        {
-            lifePlugin.OnLoaded(this);
-        }
-
-        return Task.CompletedTask;
-    }
-
-    public Task OnUnloaded()
-    {
-        foreach (var lifePlugin in Plugins)
-        {
-            lifePlugin.OnUnloaded(this);
-        }
-
-        Plugins.Clear();
-        return Task.CompletedTask;
-    }
 
     #region Builder
 

@@ -8,9 +8,9 @@ namespace Common.Avalonia.Plugins;
 
 internal class ViewModelPlugin<T> : ILifePlugin where T : BaseViewModel
 {
-    public Task OnCreated(ILifeCycle lifeCycle)
+    public async Task OnCreate(ILifeCycle lifeCycle)
     {
-        if (lifeCycle is not UserComponent<T> userComponent) return Task.CompletedTask;
+        if (lifeCycle is not UserComponent<T> userComponent) return;
         try
         {
             // Ioc加载ViewModel
@@ -18,28 +18,30 @@ internal class ViewModelPlugin<T> : ILifePlugin where T : BaseViewModel
             var viewModel = Ioc.IsBuilder ? Ioc.Container?.ResolveOptional<T>() : default;
             userComponent.ViewModel = viewModel;
             userComponent.DataContext = viewModel;
-            viewModel?.OnCreated();
+            await ((ILifeCycle)viewModel!).OnCreate();
         }
         catch (Exception e)
         {
             // Ignore
             Console.WriteLine(e.Message);
         }
-
-        return Task.CompletedTask;
     }
 
-    public Task OnLoaded(ILifeCycle lifeCycle)
+    public async Task OnInit(ILifeCycle lifeCycle)
     {
-        if (lifeCycle is not UserComponent<T> userComponent) return Task.CompletedTask;
-        userComponent.ViewModel?.OnLoaded();
-        return Task.CompletedTask;
+        if (lifeCycle is not UserComponent<T> userComponent) return;
+        await ((ILifeCycle)userComponent.ViewModel!).OnInit();
     }
 
-    public Task OnUnloaded(ILifeCycle lifeCycle)
+    public async Task OnLoad(ILifeCycle lifeCycle)
     {
-        if (lifeCycle is not UserComponent<T> userComponent) return Task.CompletedTask;
-        userComponent.ViewModel?.OnUnloaded();
-        return Task.CompletedTask;
+        if (lifeCycle is not UserComponent<T> userComponent) return;
+        await ((ILifeCycle)userComponent.ViewModel!).OnLoad();
+    }
+
+    public async Task OnUnload(ILifeCycle lifeCycle)
+    {
+        if (lifeCycle is not UserComponent<T> userComponent) return;
+        await ((ILifeCycle)userComponent.ViewModel!).OnUnload();
     }
 }

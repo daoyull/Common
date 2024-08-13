@@ -16,13 +16,18 @@ public class UserGridPlugin<T, TS> : ILifePlugin
 {
     private MultiSelectButton? _multiSelectButton;
 
-    public Task OnCreated(ILifeCycle lifeCycle)
+    public Task OnCreate(ILifeCycle lifeCycle)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task OnInit(ILifeCycle lifeCycle)
     {
         return Task.CompletedTask;
     }
 
 
-    public Task OnLoaded(ILifeCycle lifeCycle)
+    public Task OnLoad(ILifeCycle lifeCycle)
     {
         if (lifeCycle is not UserGridComponent<T, TS> userGridComponent)
         {
@@ -33,7 +38,7 @@ public class UserGridPlugin<T, TS> : ILifePlugin
         return Task.CompletedTask;
     }
 
-    public Task OnUnloaded(ILifeCycle lifeCycle)
+    public Task OnUnload(ILifeCycle lifeCycle)
     {
         if (lifeCycle is not UserGridComponent<T, TS> userGridComponent)
         {

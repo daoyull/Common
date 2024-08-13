@@ -5,12 +5,17 @@ namespace Common.Mvvm.Plugins;
 
 public class TablePlugin<T> : ILifePlugin where T : class
 {
-    public Task OnCreated(ILifeCycle lifeCycle)
+    public Task OnCreate(ILifeCycle lifeCycle)
     {
         return Task.CompletedTask;
     }
 
-    public Task OnLoaded(ILifeCycle lifeCycle)
+    public Task OnInit(ILifeCycle lifeCycle)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task OnLoad(ILifeCycle lifeCycle)
     {
         if (lifeCycle is not BaseTableViewModel<T> tableViewModel)
         {
@@ -21,7 +26,7 @@ public class TablePlugin<T> : ILifePlugin where T : class
         return Task.CompletedTask;
     }
 
-    public Task OnUnloaded(ILifeCycle lifeCycle)
+    public Task OnUnload(ILifeCycle lifeCycle)
     {
         if (lifeCycle is not BaseTableViewModel<T> tableViewModel)
         {
