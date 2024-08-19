@@ -1,5 +1,4 @@
-﻿using Autofac;
-
+﻿
 namespace Common.Lib.Ioc;
 
 public static partial class Ioc
