@@ -12,8 +12,7 @@ public class FreeSqlOptions
     public bool EnableNoneCommandParameter { get; set; }
 
     public bool EnableAutoSyncStructure { get; set; }
-
-    public string[]? SlaveConnectionStrings { get; set; }
+    
 
     public bool EnableJsonMap { get; set; }
 

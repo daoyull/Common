@@ -8,13 +8,14 @@ using Common.Lib.Service;
 using FreeSql;
 using FreeSql.Aop;
 using FreeSql.Internal.Model;
+using LanguageExt.Common;
 using Mapster;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Common.FreeSql;
 
-public delegate IFreeSql FreeSqlResolver(string key);
+public delegate Result<IFreeSql> FreeSqlResolver(string key);
 
 /// <summary>
 /// https://github.com/dotnetcore/FreeSql/issues/44
@@ -43,14 +44,14 @@ public static class FreeSqlExtensions
             {
                 lock (Locker)
                 {
-                    if (FreeSqlDictionary.TryGetValue(key, out var freeSql)) return freeSql;
+                    if (FreeSqlDictionary.TryGetValue(key, out var freeSql)) return new Result<IFreeSql>(freeSql);
 
                     // 后来注册的情况
                     var optionsSnapshot = provider.ResolveOptional<IOptionsSnapshot<FreeSqlOptions>>();
                     var freeSqlOptions = optionsSnapshot?.Get(key);
 
                     if (freeSqlOptions == null)
-                        throw new KeyNotFoundException($"未添加{key}的FreeSql连接配置");
+                        return new Result<IFreeSql>(new KeyNotFoundException($"未添加{key}的FreeSql连接配置"));
 
                     var logger = provider.Resolve<ILogger<IFreeSql>>();
 
@@ -60,7 +61,6 @@ public static class FreeSqlExtensions
                         .UseConnectionString(freeSqlOptions.DataType, freeSqlOptions.ConnectionString)
                         .UseNoneCommandParameter(freeSqlOptions.EnableNoneCommandParameter)
                         .UseAutoSyncStructure(freeSqlOptions.EnableAutoSyncStructure)
-                        .UseSlave(freeSqlOptions.SlaveConnectionStrings)
                         .Build();
 
                     db.AutoLoadId();
@@ -88,7 +88,7 @@ public static class FreeSqlExtensions
 
                     FreeSqlDictionary.Add(key, db);
 
-                    return db;
+                    return new Result<IFreeSql>(db);
                 }
             });
         }).SingleInstance();
@@ -134,11 +134,6 @@ public static class FreeSqlExtensions
         return freeSql;
     }
 
-
-    public static IFreeSql Get(this FreeSqlResolver resolver, string key)
-    {
-        return resolver(key);
-    }
 
     public static async Task<TDestination> MapperTo<TSource, TDestination>(this Task<TSource> source)
     {
